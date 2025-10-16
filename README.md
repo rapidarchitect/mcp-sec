@@ -371,46 +371,26 @@ mcp-allowlist import \
 mcp-allowlist stats --config server_config.yml
 ```
 
-### Authentication Testing
+## Testing
 
-#### Test Authentication Flow
+The system includes comprehensive test suites that can be run in Docker:
 
 ```bash
-# Test against remote server
-mcp-auth-test \
-  --config client_config.yml \
-  --server-url https://api.example.com:8443/auth \
-  --timeout 10
+# Run all tests
+make test
 
-# Test with WebSocket
-mcp-auth-test \
-  --config client_config.yml \
-  --server-url wss://api.example.com:8443/ws \
-  --transport websocket
-
-# Performance testing
-mcp-auth-test \
-  --config client_config.yml \
-  --server-url https://localhost:8443/auth \
-  --count 100 \
-  --concurrent 10
+# Run specific test categories
+make test-unit          # Unit tests only
+make test-integration   # Integration tests only
 ```
 
-#### Configuration Validation
+### Manual Testing
 
-```bash
-# Validate configuration file
-mcp-config-validate server_config.yml
+You can manually test the authentication flow using the Python API:
 
-# Check key file integrity
-mcp-config-validate \
-  --check-keys \
-  --config server_config.yml
-
-# Validate allowlist
-mcp-config-validate \
-  --check-allowlist \
-  --config server_config.yml
+```python
+# See the integration tests in tests/integration/test_auth_flow.py
+# for complete examples of testing authentication flows
 ```
 
 ## API Reference
@@ -688,20 +668,17 @@ mcp-sec/
 │   └── cli/                   # CLI tools
 │       ├── __init__.py
 │       ├── keygen.py          # Key generation CLI
-│       ├── allowlist.py       # Allowlist management CLI
-│       ├── auth_test.py       # Authentication testing CLI
-│       └── config_validate.py # Configuration validation CLI
+│       └── allowlist.py       # Allowlist management CLI
 ├── tests/                     # Test suite
 │   ├── unit/                  # Unit tests
-│   ├── integration/           # Integration tests
-│   ├── security/              # Security tests
-│   └── performance/           # Performance benchmarks
-├── examples/                  # Example implementations
-├── docs/                      # Documentation
-├── docker/                    # Docker configuration
+│   └── integration/           # Integration tests
+├── examples/                  # Example implementations (planned)
+├── Dockerfile.test            # Docker test environment
+├── docker-compose.test.yml    # Docker Compose for testing
 ├── Makefile                   # Build automation
 ├── pyproject.toml            # Project metadata
 ├── requirements.txt          # Dependencies
+├── requirements-dev.txt      # Development dependencies
 └── README.md                 # This file
 ```
 
@@ -915,11 +892,43 @@ Major architectural changes should be discussed via GitHub issues before impleme
 
 ### Future Roadmap
 
+#### Immediate (Next Release)
+- **Additional CLI Tools**: Authentication testing (`mcp-auth-test`) and configuration validation (`mcp-config-validate`)
+- **Example Applications**: Server/client example implementations
+- **Configuration Management**: Full YAML configuration loading and validation
+
+#### Medium Term
+- **Enhanced Transport**: Full HTTP/WebSocket server implementations with SSL/TLS
+- **Performance Optimization**: Benchmarking and optimization for high-throughput scenarios
+- **Security Enhancements**: Additional security tests and timing attack resistance
+
+#### Long Term
 - **Multi-language support**: Go, Rust, Node.js implementations
 - **Key rotation**: Automated key rotation protocols
 - **Federation**: Cross-domain authentication support
 - **Hardware Security**: HSM and hardware key support
 - **Monitoring**: Prometheus metrics integration
+
+## Current Implementation Status
+
+### ✅ **Completed Features**
+- **Core Authentication**: Complete 4-message ed25519 mutual authentication protocol
+- **Key Management**: Key generation, loading, saving, and fingerprinting
+- **Access Control**: Allowlist management with metadata support
+- **Audit Logging**: Comprehensive structured logging with performance metrics
+- **CLI Tools**: Key generation (`mcp-keygen`) and allowlist management (`mcp-allowlist`)
+- **Protocol Handling**: Message serialization/deserialization with validation
+- **Docker Support**: Containerized testing and development environment
+- **Test Suite**: Unit tests and integration tests with 70%+ coverage
+
+### 🚧 **In Development**
+- **Transport Layer**: HTTP/WebSocket implementations (basic structure exists)
+- **Configuration Management**: YAML configuration system (partial implementation)
+
+### 📋 **Planned Features**
+- **Additional CLI Tools**: Authentication testing and config validation
+- **Example Applications**: Complete server/client implementations
+- **Enhanced Documentation**: API docs and deployment guides
 
 ---
 

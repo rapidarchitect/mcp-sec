@@ -1,0 +1,15 @@
+{
+  "version": "1.0",
+  "updated_at": "2025-10-16T04:48:28.275067+00:00",
+  "default_policy": "deny",
+  "keys": [
+    {
+      "fingerprint": "5b42e8394b271dcd898d6fec4b321e1bfed5fb676bcdf23faf539890a0083788",
+      "public_key": "G5srPXc7ZMIBfxwZb5yTu2gCQ0pOcoEvPkFmz/YjAEM=",
+      "description": "Test client key",
+      "added_at": "2025-10-16T04:48:05.371358+00:00",
+      "added_by": "CLI test",
+      "metadata": {}
+    }
+  ]
+}

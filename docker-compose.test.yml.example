@@ -1,0 +1,164 @@
+version: '3.8'
+
+services:
+  # Main test runner
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - .:/workspace
+      - test-results:/workspace/test-results
+    environment:
+      - PYTHONPATH=/workspace
+      - GO111MODULE=on
+      - NODE_ENV=test
+    depends_on:
+      - test-db
+      - test-redis
+    command: make test-integration
+
+  # Python implementation tests
+  python-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+      target: python-test
+    volumes:
+      - .:/workspace
+      - test-results:/workspace/test-results
+    environment:
+      - PYTHONPATH=/workspace
+      - PYTEST_ARGS=--benchmark-skip
+    command: pytest tests/python/ -v --junitxml=test-results/python-results.xml
+
+  # Go implementation tests
+  go-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+      target: go-test
+    volumes:
+      - .:/workspace
+      - test-results:/workspace/test-results
+    environment:
+      - GO111MODULE=on
+      - CGO_ENABLED=1
+    command: go test -v ./pkg/... -coverprofile=test-results/go-coverage.out
+
+  # Node.js implementation tests
+  nodejs-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+      target: nodejs-test
+    volumes:
+      - .:/workspace
+      - test-results:/workspace/test-results
+    environment:
+      - NODE_ENV=test
+    command: npm test -- --reporter=junit --outputFile=test-results/nodejs-results.xml
+
+  # Cross-language integration tests
+  integration-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - .:/workspace
+      - test-results:/workspace/test-results
+    environment:
+      - TEST_SERVER_HOST=test-server
+      - TEST_CLIENT_HOST=test-client
+      - INTEGRATION_TEST=true
+    depends_on:
+      - test-server
+      - test-client
+      - test-db
+    command: pytest tests/integration/ -v
+
+  # Test MCP server instance
+  test-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - .:/workspace
+      - ./test-keys:/etc/mcp-keys:ro
+    environment:
+      - MCP_AUTH_ENABLED=true
+      - MCP_PRIVATE_KEY_PATH=/etc/mcp-keys/server-private.pem
+      - MCP_CLIENT_ALLOWLIST_PATH=/etc/mcp-keys/client-allowlist.json
+      - MCP_LOG_LEVEL=debug
+    ports:
+      - "8080:8080"
+    command: ./bin/mcp-server --config=test-config/server.yml
+
+  # Test MCP client instance
+  test-client:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - .:/workspace
+      - ./test-keys:/etc/mcp-keys:ro
+    environment:
+      - MCP_AUTH_ENABLED=true
+      - MCP_PRIVATE_KEY_PATH=/etc/mcp-keys/client-private.pem
+      - MCP_SERVER_ALLOWLIST_PATH=/etc/mcp-keys/server-allowlist.json
+      - MCP_SERVER_URL=http://test-server:8080
+    depends_on:
+      - test-server
+    command: ./bin/mcp-client --config=test-config/client.yml
+
+  # Test database for audit logs
+  test-db:
+    image: postgres:14-alpine
+    environment:
+      - POSTGRES_DB=mcp_test
+      - POSTGRES_USER=mcp_test
+      - POSTGRES_PASSWORD=test_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - test-db-data:/var/lib/postgresql/data
+
+  # Test Redis for shared nonce cache
+  test-redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass test_password
+
+  # Performance testing
+  performance-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - .:/workspace
+      - test-results:/workspace/test-results
+    environment:
+      - BENCHMARK_DURATION=30s
+      - BENCHMARK_CLIENTS=100
+    depends_on:
+      - test-server
+    command: pytest tests/performance/ --benchmark-only --benchmark-json=test-results/benchmark.json
+
+  # Security testing
+  security-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - .:/workspace
+      - test-results:/workspace/test-results
+    environment:
+      - SECURITY_TEST_MODE=true
+    depends_on:
+      - test-server
+    command: pytest tests/security/ -v --junitxml=test-results/security-results.xml
+
+volumes:
+  test-results:
+  test-db-data:

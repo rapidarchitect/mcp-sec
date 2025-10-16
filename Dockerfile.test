@@ -1,0 +1,35 @@
+# Python-focused Dockerfile for MCP PKI Authentication System testing
+FROM ubuntu:22.04
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    python3-venv \
+    git \
+    build-essential \
+    libsodium-dev \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set up Python environment
+WORKDIR /workspace
+
+# Copy requirements first for better Docker layer caching
+COPY requirements-dev.txt* ./
+COPY pyproject.toml .
+
+# Install Python dependencies
+RUN python3 -m pip install --upgrade pip && \
+    python3 -m pip install pytest pytest-benchmark pytest-asyncio && \
+    python3 -m pip install pytest-xdist pytest-html pytest-cov && \
+    python3 -m pip install cryptography pyyaml click structlog pydantic httpx
+
+# Copy source code
+COPY . .
+
+# Install the package in development mode
+RUN python3 -m pip install -e .
+
+# Default command runs pytest
+CMD ["python3", "-m", "pytest", "tests/", "-v"]

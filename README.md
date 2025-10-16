@@ -2,6 +2,10 @@
 
 A mutual authentication system for the Model Context Protocol (MCP) using ed25519 public key infrastructure, enabling bidirectional identity verification between MCP servers and clients.
 
+[Research Paper Download](mcp_secure_research_paper.pdf)
+
+[Research Paper Online](mcp_pki_research_paper.md)
+
 ## Table of Contents
 
 - [Overview](#overview)

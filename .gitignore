@@ -1,6 +1,0 @@
-WARP.MD
-mcp_pki_auth_prd_frd.md
-.coverage
-.pytest_cache/
-.benchmarks/
-__pycache__/

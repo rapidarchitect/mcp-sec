@@ -5,7 +5,7 @@ A mutual authentication system for the Model Context Protocol (MCP) using ed2551
 ## Table of Contents
 
 - [Overview](#overview)
-- [Architecture](#architecture) 
+- [Architecture](#architecture)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [Configuration](#configuration)
@@ -39,7 +39,7 @@ The MCP PKI Authentication System provides secure, mutual authentication for MCP
 # Generate server key pair
 mcp-keygen --output-dir ./keys --key-name server
 
-# Generate client key pair  
+# Generate client key pair
 mcp-keygen --output-dir ./keys --key-name client
 ```
 
@@ -60,6 +60,7 @@ mcp-allowlist add --config client_config.yml \
 ### 3. Configure Authentication
 
 Create `server_config.yml`:
+
 ```yaml
 keys:
   private_key_path: "./keys/server_private.pem"
@@ -69,7 +70,7 @@ acl:
   allowlist_path: "./keys/server_allowlist.json"
 
 auth:
-  timestamp_tolerance: 300  # 5 minutes
+  timestamp_tolerance: 300 # 5 minutes
   nonce_cache_size: 10000
 
 audit:
@@ -183,6 +184,7 @@ make build
 ### Dependencies
 
 Core dependencies are automatically installed:
+
 - `cryptography>=41.0.0` - ed25519 cryptographic operations
 - `pyyaml>=6.0` - Configuration file parsing
 - `click>=8.0.0` - CLI framework
@@ -198,25 +200,25 @@ Core dependencies are automatically installed:
 keys:
   private_key_path: "./keys/private.pem"
   public_key_path: "./keys/public.pem"
-  auto_generate: false  # Generate keys if not found
+  auto_generate: false # Generate keys if not found
 
 # Access control
 acl:
   allowlist_path: "./keys/allowlist.json"
-  auto_create: true  # Create empty allowlist if not found
-  metadata_required: false  # Require metadata for all entries
+  auto_create: true # Create empty allowlist if not found
+  metadata_required: false # Require metadata for all entries
 
 # Authentication settings
 auth:
-  timestamp_tolerance: 300  # seconds (±5 minutes)
-  nonce_cache_size: 10000   # Max cached nonces
-  nonce_cache_ttl: 3600     # Nonce TTL in seconds
+  timestamp_tolerance: 300 # seconds (±5 minutes)
+  nonce_cache_size: 10000 # Max cached nonces
+  nonce_cache_ttl: 3600 # Nonce TTL in seconds
 
 # Audit logging
 audit:
   enabled: true
-  log_file: "./logs/audit.jsonl"  # Use null for stdout
-  log_level: "INFO"  # DEBUG, INFO, WARN, ERROR
+  log_file: "./logs/audit.jsonl" # Use null for stdout
+  log_level: "INFO" # DEBUG, INFO, WARN, ERROR
   max_file_size: "10MB"
   backup_count: 5
   include_performance: true
@@ -224,20 +226,20 @@ audit:
 
 # Transport configuration
 transport:
-  type: "http"  # "http", "https", "ws", "wss"
+  type: "http" # "http", "https", "ws", "wss"
   host: "localhost"
   port: 8443
   timeout: 30
   max_connections: 100
   retry_attempts: 3
   retry_delay: 1.0
-  
+
   # SSL/TLS settings (for https/wss)
   ssl:
     cert_file: "./certs/server.crt"
     key_file: "./certs/server.key"
-    ca_file: "./certs/ca.pem"  # Optional CA bundle
-    verify_mode: "required"  # "none", "optional", "required"
+    ca_file: "./certs/ca.pem" # Optional CA bundle
+    verify_mode: "required" # "none", "optional", "required"
 ```
 
 ### Environment Variables
@@ -476,19 +478,19 @@ auth_engine = AuthenticationEngine(config, key_manager, acl_manager)
 async def client_auth():
     # Step 1: Create auth request
     request = auth_engine.create_auth_request()
-    
+
     # Step 3: Process server challenge
     response = auth_engine.process_challenge(challenge_msg)
-    
+
     # Verify final response
     success = auth_engine.verify_auth_complete(complete_msg)
     return success
 
-# Server-side authentication  
+# Server-side authentication
 async def server_auth():
     # Step 2: Process client request and create challenge
     challenge = auth_engine.process_auth_request(request_msg)
-    
+
     # Step 4: Process response and complete auth
     result = auth_engine.process_auth_response(response_msg)
     return result
@@ -517,7 +519,7 @@ response = await transport.send_auth_message(auth_request)
 server_transport = HTTPTransport(
     host="0.0.0.0",
     port=8443,
-    ssl_cert_file="./certs/server.crt", 
+    ssl_cert_file="./certs/server.crt",
     ssl_key_file="./certs/server.key"
 )
 
@@ -638,14 +640,14 @@ mcp-keygen --output-dir ./keys --key-name production_2024
 ```yaml
 # Use strong timestamp tolerance (not too permissive)
 auth:
-  timestamp_tolerance: 300  # 5 minutes max
+  timestamp_tolerance: 300 # 5 minutes max
 
 # Enable comprehensive audit logging
 audit:
   enabled: true
   log_level: "INFO"
   include_performance: true
-  
+
 # Use TLS with proper certificates
 transport:
   type: "https"
@@ -903,7 +905,7 @@ When reporting issues, include:
 Major architectural changes should be discussed via GitHub issues before implementation. Consider:
 
 - Performance impact
-- Security implications  
+- Security implications
 - Backward compatibility
 - Cross-language implementation challenges
 
@@ -930,6 +932,6 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) file for 
 
 ---
 
-**Version**: 1.0.0  
-**Last Updated**: January 2024  
-**Maintainers**: MCP Security Team
+**Version**: 1.0.0
+**Last Updated**: Oct 2025
+**Maintainers**: M.Hjorleifsson
